@@ -53,7 +53,7 @@
 		"vue-router": "^4.1.6",
 		"vxe-table": "^4.4.1",
 		"xe-utils": "^3.5.7",
-		"@iconify/vue": "^4.1.1",
+		"@iconify/vue": "^4.1.1"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.13",
