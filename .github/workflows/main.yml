@@ -17,9 +17,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-
-    - name: Install dependencies
-      run: npm install
+    - name: Install Yarn to resolve Unsupported URL Type "workspace:" workspace:./lib
+      run: npm install -g yarn
+      
+    - name: Use Yarn to install dependencies
+      run: yarn
 
     - name: Build
       run: npm run build
