@@ -10,40 +10,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # 官方action, 将代码拉取到虚拟机
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-    - name: Install Yarn to resolve Unsupported URL Type "workspace:" workspace:./lib
-      run: npm install -g yarn
-      
-    - name: Use Yarn to install dependencies
-      run: yarn
+      # 安装node.js
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.18.2'
 
-    - name: Build
-      run: npm run build
+      # 下载依赖、打包项目
+      - name: Install and Build
+        run: |
+          yarn install
+          yarn build
 
-    - name: Deploy via SFTP
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        source: "dist/*"
-        target: ${{ secrets.TARGET }}
-        strip_components: 1
+      # 部署到服务器
+      - name: Upload to Deploy Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          # 指定上传的文件目录(项目配置的打包目录名称)
+          source: './dist/*'
+          # 指定上传服务器目录
+          target: '/var/www/movie'
+          # 解压时覆盖现有文件
+          overwrite: true
+          # 删除指定数量的前导路径元素
+          strip_components: 1
 
-    - name: Execute remote command
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        script: |
-          echo "😃 Remote command execution"
-          # 在这里添加你需要在服务器上执行的任何命令
+      - name: Execute remote command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            echo "😃 Remote command execution"
+            # 在这里添加你需要在服务器上执行的任何命令
